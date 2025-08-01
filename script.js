@@ -4,7 +4,6 @@ const women_section = document.querySelector('.women');
 const kids_section = document.querySelector('.kids');
 const home_section = document.querySelector('.homeliving');
 const beauty_section = document.querySelector('.beauty');
-
 const men_section_items = document.querySelector('.men-section-items');
 const women_section_items = document.querySelector('.women-section-items');
 const kids_section_items = document.querySelector('.kids-section-items');
@@ -23,6 +22,22 @@ const cartCount = document.getElementById('cartCount');
 const wishlistBtn = document.getElementById('wishlistBtn');
 const wishlistCount = document.getElementById('wishlistCount');
 const themeToggle = document.getElementById('themeToggle');
+
+// Profile Elements
+const profileBtn = document.querySelector('.profile');
+const profileModal = document.getElementById('profileModal');
+const profileOverlay = document.getElementById('profileOverlay');
+const profileClose = document.getElementById('profileClose');
+
+// Wishlist Modal Elements
+const wishlistModal = document.getElementById('wishlistModal');
+const wishlistOverlay = document.getElementById('wishlistOverlay');
+const wishlistCloseBtn = document.getElementById('wishlistClose');
+
+// Quick View Elements
+const quickViewModal = document.getElementById('quickViewModal');
+const quickViewOverlay = document.getElementById('quickViewOverlay');
+const quickViewClose = document.getElementById('quickViewClose');
 
 // Data
 let cart = [];
@@ -77,6 +92,12 @@ const sampleProducts = [
         category: "kids"
     }
 ];
+
+// Quick View State
+let currentQuickViewProduct = null;
+let selectedSize = null;
+let selectedColor = null;
+let productQuantity = 1;
 
 // Search functionality
 const searchSuggestionsList = [
@@ -216,6 +237,9 @@ function displayProducts(products, containerId) {
                     <button class="add-to-wishlist" onclick="event.stopPropagation(); addToWishlist(${product.id})">
                         ♡
                     </button>
+                    <button class="quick-view-btn" onclick="event.stopPropagation(); openQuickView(${product.id})">
+                        Quick View
+                    </button>
                 </div>
             </div>
         </div>
@@ -309,8 +333,121 @@ function addToWishlist(productId) {
     }
 }
 
+function removeFromWishlist(productId) {
+    wishlist = wishlist.filter(item => item.id !== productId);
+    updateWishlistUI();
+    showNotification('Removed from wishlist!');
+}
+
+function moveToCartFromWishlist(productId) {
+    addToCart(productId);
+    removeFromWishlist(productId);
+    showNotification('Moved to cart!');
+}
+
 function updateWishlistUI() {
     wishlistCount.textContent = wishlist.length;
+    
+    // Update wishlist modal content
+    const wishlistItems = document.getElementById('wishlistItems');
+    const wishlistFooter = document.getElementById('wishlistFooter');
+    
+    if (wishlist.length === 0) {
+        wishlistItems.innerHTML = `
+            <div class="empty-wishlist">
+                <i class="fa fa-heart-o"></i>
+                <p>Your wishlist is empty</p>
+                <p>Add items you love to your wishlist</p>
+            </div>
+        `;
+        wishlistFooter.style.display = 'none';
+    } else {
+        const wishlistHTML = wishlist.map(item => `
+            <div class="wishlist-item">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="wishlist-item-details">
+                    <div class="wishlist-item-name">${item.name}</div>
+                    <div class="wishlist-item-price">₹${item.price}</div>
+                    <div class="wishlist-item-actions">
+                        <button class="move-to-bag-btn" onclick="moveToCartFromWishlist(${item.id})">Move to Bag</button>
+                        <button class="remove-wishlist-btn" onclick="removeFromWishlist(${item.id})">Remove</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        wishlistItems.innerHTML = wishlistHTML;
+        wishlistFooter.style.display = 'block';
+    }
+}
+
+// Quick View Functionality
+function openQuickView(productId) {
+    const product = sampleProducts.find(p => p.id === productId);
+    if (!product) return;
+    
+    currentQuickViewProduct = product;
+    
+    // Populate quick view modal
+    document.getElementById('quickViewBrand').textContent = product.brand;
+    document.getElementById('quickViewName').textContent = product.name;
+    document.getElementById('quickViewPrice').textContent = `₹${product.price}`;
+    document.getElementById('quickViewRating').innerHTML = `
+        <span class="stars">${'★'.repeat(Math.floor(product.rating))}</span>
+        <span>(${product.rating})</span>
+    `;
+    
+    // Set main image
+    document.getElementById('quickViewMainImage').src = product.image;
+    
+    // Generate thumbnail images (using same image for demo)
+    const thumbnailContainer = document.getElementById('thumbnailImages');
+    thumbnailContainer.innerHTML = `
+        <img src="${product.image}" alt="View 1" class="active" onclick="changeMainImage('${product.image}')">
+        <img src="${product.image}" alt="View 2" onclick="changeMainImage('${product.image}')">
+        <img src="${product.image}" alt="View 3" onclick="changeMainImage('${product.image}')">
+    `;
+    
+    // Reset selections
+    resetQuickViewSelections();
+    
+    // Show modal
+    quickViewModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function changeMainImage(imageSrc) {
+    document.getElementById('quickViewMainImage').src = imageSrc;
+    
+    // Update active thumbnail
+    const thumbnails = document.querySelectorAll('#thumbnailImages img');
+    thumbnails.forEach(thumb => thumb.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function resetQuickViewSelections() {
+    selectedSize = null;
+    selectedColor = null;
+    productQuantity = 1;
+    
+    // Reset size buttons
+    document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // Reset color options
+    document.querySelectorAll('.color-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Reset quantity
+    document.getElementById('productQuantity').textContent = '1';
+}
+
+function closeQuickView() {
+    quickViewModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    currentQuickViewProduct = null;
 }
 
 // Modal Controls
@@ -324,6 +461,158 @@ cartClose.addEventListener('click', () => {
 
 cartOverlay.addEventListener('click', () => {
     cartModal.style.display = 'none';
+});
+
+// Profile Modal Controls
+profileBtn.addEventListener('click', () => {
+    profileModal.style.display = 'block';
+});
+
+profileClose.addEventListener('click', () => {
+    profileModal.style.display = 'none';
+});
+
+profileOverlay.addEventListener('click', () => {
+    profileModal.style.display = 'none';
+});
+
+// Wishlist Modal Controls
+wishlistBtn.addEventListener('click', () => {
+    updateWishlistUI();
+    wishlistModal.style.display = 'block';
+});
+
+wishlistCloseBtn.addEventListener('click', () => {
+    wishlistModal.style.display = 'none';
+});
+
+wishlistOverlay.addEventListener('click', () => {
+    wishlistModal.style.display = 'none';
+});
+
+// Move All to Bag functionality
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('move-all-to-bag-btn')) {
+        wishlist.forEach(item => {
+            addToCart(item.id);
+        });
+        wishlist = [];
+        updateWishlistUI();
+        wishlistModal.style.display = 'none';
+        showNotification('All items moved to cart!');
+    }
+});
+
+// Profile Menu Item Handlers
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.menu-item')) {
+        const menuItem = e.target.closest('.menu-item');
+        const menuText = menuItem.querySelector('span').textContent;
+        
+        switch(menuText) {
+            case 'My Orders':
+                showNotification('Orders section - Coming Soon!');
+                break;
+            case 'My Wishlist':
+                profileModal.style.display = 'none';
+                wishlistModal.style.display = 'block';
+                updateWishlistUI();
+                break;
+            case 'Account Settings':
+                showNotification('Account Settings - Coming Soon!');
+                break;
+            case 'Saved Addresses':
+                showNotification('Saved Addresses - Coming Soon!');
+                break;
+            case 'Payment Methods':
+                showNotification('Payment Methods - Coming Soon!');
+                break;
+            case 'Myntra Insider':
+                showNotification('Myntra Insider - Coming Soon!');
+                break;
+            case 'Help & Support':
+                showNotification('Help & Support - Coming Soon!');
+                break;
+            case 'Logout':
+                showNotification('Logout - Coming Soon!');
+                break;
+        }
+    }
+});
+
+// Quick View Modal Controls
+quickViewClose.addEventListener('click', closeQuickView);
+quickViewModal.addEventListener('click', function(e) {
+    if (e.target === quickViewModal) {
+        closeQuickView();
+    }
+});
+
+// Size Selection
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('size-btn')) {
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        e.target.classList.add('selected');
+        selectedSize = e.target.textContent;
+    }
+});
+
+// Color Selection
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('color-option')) {
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        e.target.classList.add('selected');
+        selectedColor = e.target.getAttribute('data-color');
+    }
+});
+
+// Quantity Controls
+document.getElementById('decreaseQty').addEventListener('click', function() {
+    if (productQuantity > 1) {
+        productQuantity--;
+        document.getElementById('productQuantity').textContent = productQuantity;
+    }
+});
+
+document.getElementById('increaseQty').addEventListener('click', function() {
+    if (productQuantity < 10) {
+        productQuantity++;
+        document.getElementById('productQuantity').textContent = productQuantity;
+    }
+});
+
+// Add to Cart from Quick View
+document.getElementById('addToCartQuick').addEventListener('click', function() {
+    if (!selectedSize) {
+        alert('Please select a size');
+        return;
+    }
+    if (!selectedColor) {
+        alert('Please select a color');
+        return;
+    }
+    
+    // For Quick View, we'll add to cart with the current product ID
+    // The size and color selection is just for UX demonstration
+    addToCart(currentQuickViewProduct.id);
+    closeQuickView();
+});
+
+// Add to Wishlist from Quick View
+document.getElementById('addToWishlistQuick').addEventListener('click', function() {
+    addToWishlist(currentQuickViewProduct.id);
+    closeQuickView();
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && quickViewModal.style.display === 'block') {
+        closeQuickView();
+    }
 });
 
 // Theme Toggle
