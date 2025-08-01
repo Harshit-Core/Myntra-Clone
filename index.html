@@ -62,6 +62,82 @@
             <!-- Products will be dynamically loaded here -->
         </div>
     </div>
+    <!-- Product Quick View Modal -->
+    <div class="quick-view-modal" id="quickViewModal" style="display: none;">
+        <div class="quick-view-overlay" id="quickViewOverlay"></div>
+        <div class="quick-view-content">
+            <div class="quick-view-header">
+                <h3>Quick View</h3>
+                <span class="quick-view-close" id="quickViewClose">&times;</span>
+            </div>
+            <div class="quick-view-body">
+                <div class="quick-view-image-section">
+                    <div class="main-image">
+                        <div class="image-zoom-lens" id="zoomLens"></div>
+                        <img id="quickViewMainImage" src="" alt="Product Image">
+                    </div>
+                    <div class="thumbnail-images" id="thumbnailImages">
+                        <!-- Thumbnail images will be loaded here -->
+                    </div>
+                </div>
+                <div class="quick-view-details">
+                    <div class="product-brand" id="quickViewBrand"></div>
+                    <div class="product-name" id="quickViewName"></div>
+                    <div class="product-price" id="quickViewPrice"></div>
+                    <div class="product-rating" id="quickViewRating"></div>
+                    
+                    <div class="size-selector">
+                        <h4>Select Size</h4>
+                        <div class="size-options" id="sizeOptions">
+                            <button class="size-btn" data-size="XS">XS</button>
+                            <button class="size-btn" data-size="S">S</button>
+                            <button class="size-btn" data-size="M">M</button>
+                            <button class="size-btn" data-size="L">L</button>
+                            <button class="size-btn" data-size="XL">XL</button>
+                        </div>
+                    </div>
+                    
+                    <div class="color-selector">
+                        <h4>Select Color</h4>
+                        <div class="color-options" id="colorOptions">
+                            <div class="color-option" data-color="red" style="background-color: #ff4444;"></div>
+                            <div class="color-option" data-color="blue" style="background-color: #4444ff;"></div>
+                            <div class="color-option" data-color="green" style="background-color: #44ff44;"></div>
+                            <div class="color-option" data-color="black" style="background-color: #333333;"></div>
+                            <div class="color-option" data-color="white" style="background-color: #ffffff; border: 1px solid #ccc;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="quantity-selector">
+                        <h4>Quantity</h4>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" id="decreaseQty">-</button>
+                            <span id="productQuantity">1</span>
+                            <button class="qty-btn" id="increaseQty">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-view-actions">
+                        <button class="add-to-cart-quick" id="addToCartQuick">Add to Cart</button>
+                        <button class="add-to-wishlist-quick" id="addToWishlistQuick">
+                            <i class="fa fa-heart-o"></i> Wishlist
+                        </button>
+                    </div>
+                    
+                    <div class="product-features">
+                        <h4>Product Features</h4>
+                        <ul id="productFeatures">
+                            <li>Premium quality material</li>
+                            <li>Comfortable fit</li>
+                            <li>Easy care instructions</li>
+                            <li>Available in multiple sizes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Shopping Cart Modal -->
     <div class="cart-modal" id="cartModal" style="display: none;">
         <div class="cart-overlay" id="cartOverlay"></div>
@@ -82,6 +158,92 @@
                     <span>Total: ₹<span id="cartTotal">0</span></span>
                 </div>
                 <button class="checkout-btn">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profileModal" style="display: none;">
+        <div class="profile-overlay" id="profileOverlay"></div>
+        <div class="profile-content">
+            <div class="profile-header">
+                <h3>My Profile</h3>
+                <span class="profile-close" id="profileClose">&times;</span>
+            </div>
+            <div class="profile-body">
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="profile-details">
+                        <h4>Welcome, Guest User!</h4>
+                        <p>Please login to access your account</p>
+                        <button class="login-btn">Login / Sign Up</button>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <div class="menu-item">
+                        <i class="fa fa-shopping-bag"></i>
+                        <span>My Orders</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fa fa-heart"></i>
+                        <span>My Wishlist</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fa fa-user"></i>
+                        <span>Account Settings</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fa fa-map-marker"></i>
+                        <span>Saved Addresses</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fa fa-credit-card"></i>
+                        <span>Payment Methods</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fa fa-gift"></i>
+                        <span>Myntra Insider</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fa fa-question-circle"></i>
+                        <span>Help & Support</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-item">
+                        <i class="fa fa-sign-out"></i>
+                        <span>Logout</span>
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Modal -->
+    <div class="wishlist-modal" id="wishlistModal" style="display: none;">
+        <div class="wishlist-overlay" id="wishlistOverlay"></div>
+        <div class="wishlist-content">
+            <div class="wishlist-header">
+                <h3>My Wishlist</h3>
+                <span class="wishlist-close" id="wishlistClose">&times;</span>
+            </div>
+            <div class="wishlist-items" id="wishlistItems">
+                <div class="empty-wishlist">
+                    <i class="fa fa-heart-o"></i>
+                    <p>Your wishlist is empty</p>
+                    <p>Add items you love to your wishlist</p>
+                </div>
+            </div>
+            <div class="wishlist-footer" id="wishlistFooter" style="display: none;">
+                <button class="move-all-to-bag-btn">Move All to Bag</button>
             </div>
         </div>
     </div>
