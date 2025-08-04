@@ -13,6 +13,15 @@
     <title>Online Shopping for Women, Men, Kids Fashion & Lifestyle - Myntra</title>
 </head>
 <body>
+    <!-- Loading Notification -->
+    <div class="loading-notification" id="loadingNotification">
+        <div class="notification-content">
+            <i class="fa fa-info-circle"></i>
+            <span>Note: This is a frontend clone of Myntra for demonstration purposes. Some features may be limited.</span>
+            <button class="close-notification" id="closeNotification">&times;</button>
+        </div>
+    </div>
+
     <nav>
         <div class="left">
             <img src="https://raw.githubusercontent.com/Harshit-Core/Myntra-Clone/main/logo%20(1)%20(1).png" alt="">
@@ -154,10 +163,14 @@
                 </div>
             </div>
             <div class="cart-footer" id="cartFooter" style="display: none;">
-                <div class="cart-total">
-                    <span>Total: ₹<span id="cartTotal">0</span></span>
+                <div class="cart-total" id="cartTotalSection">
+                    <div class="total-breakdown">
+                        <div class="subtotal">Subtotal: ₹<span id="cartSubtotal">0</span></div>
+                        <div class="shipping">Shipping: FREE</div>
+                        <div class="total-amount">Total: ₹<span id="cartTotal">0</span></div>
+                    </div>
                 </div>
-                <button class="checkout-btn">Proceed to Checkout</button>
+                <button class="checkout-btn" id="checkoutButton">Proceed to Checkout</button>
             </div>
         </div>
     </div>
