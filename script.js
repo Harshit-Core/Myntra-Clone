@@ -315,8 +315,16 @@ function updateCartUI() {
         
         cartItems.innerHTML = cartHTML;
         
+        // Update cart total with detailed breakdown
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        document.getElementById('cartTotal').textContent = total;
+        
+        // Update individual elements
+        const cartSubtotal = document.getElementById('cartSubtotal');
+        const cartTotalElement = document.getElementById('cartTotal');
+        
+        if (cartSubtotal) cartSubtotal.textContent = total;
+        if (cartTotalElement) cartTotalElement.textContent = total;
+        
         cartFooter.style.display = 'block';
     }
 }
@@ -615,6 +623,237 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// Checkout Functionality
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('checkout-btn')) {
+        e.preventDefault();
+        handleCheckout();
+    }
+});
+
+function handleCheckout() {
+    if (cart.length === 0) {
+        showNotification('Your cart is empty!');
+        return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    
+    // Create checkout modal
+    const checkoutModal = document.createElement('div');
+    checkoutModal.className = 'checkout-modal';
+    checkoutModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    checkoutModal.innerHTML = `
+        <div class="checkout-content" style="
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px var(--shadow);
+        ">
+            <h2 style="color: var(--text-color); margin-bottom: 20px;">Order Summary</h2>
+            <div style="color: var(--text-color); margin-bottom: 30px;">
+                <p style="margin: 10px 0;"><strong>Items:</strong> ${itemCount}</p>
+                <p style="margin: 10px 0;"><strong>Total Amount:</strong> ₹${total}</p>
+                <p style="margin: 10px 0; color: #4CAF50;"><strong>Shipping:</strong> FREE</p>
+                <hr style="margin: 20px 0; border: 1px solid var(--border-color);">
+                <p style="font-size: 18px; font-weight: bold; color: var(--accent-color);">Final Total: ₹${total}</p>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="confirm-order-btn" style="
+                    background: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">Confirm Order</button>
+                <button class="cancel-order-btn" style="
+                    background: #f44336;
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">Cancel</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(checkoutModal);
+    document.body.style.overflow = 'hidden';
+    
+    // Handle confirm order
+    checkoutModal.querySelector('.confirm-order-btn').addEventListener('click', function() {
+        cart = []; // Clear cart
+        updateCartUI();
+        updateWishlistUI();
+        document.body.removeChild(checkoutModal);
+        document.body.style.overflow = 'auto';
+        cartModal.style.display = 'none';
+        
+        showSuccessMessage();
+    });
+    
+    // Handle cancel
+    checkoutModal.querySelector('.cancel-order-btn').addEventListener('click', function() {
+        document.body.removeChild(checkoutModal);
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Close on overlay click
+    checkoutModal.addEventListener('click', function(e) {
+        if (e.target === checkoutModal) {
+            document.body.removeChild(checkoutModal);
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+function showSuccessMessage() {
+    const successModal = document.createElement('div');
+    successModal.className = 'success-modal';
+    successModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    successModal.innerHTML = `
+        <div class="success-content" style="
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px var(--shadow);
+        ">
+            <div style="color: #4CAF50; font-size: 60px; margin-bottom: 20px;">✓</div>
+            <h2 style="color: var(--text-color); margin-bottom: 15px;">Order Placed Successfully!</h2>
+            <p style="color: var(--secondary-text); margin-bottom: 30px;">Thank you for shopping with us. Your order will be delivered soon.</p>
+            <button class="close-success-btn" style="
+                background: var(--accent-color);
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 6px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            ">Continue Shopping</button>
+        </div>
+    `;
+    
+    document.body.appendChild(successModal);
+    
+    successModal.querySelector('.close-success-btn').addEventListener('click', function() {
+        document.body.removeChild(successModal);
+    });
+    
+    // Auto close after 3 seconds
+    setTimeout(() => {
+        if (document.body.contains(successModal)) {
+            document.body.removeChild(successModal);
+        }
+    }, 3000);
+}
+
+// Homepage Button Navigation
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers for homepage sections
+    const sections = document.querySelectorAll('.section img, .section1 img, .section2 img, .section3 img, .section4 img, .section5 img, .section6 img, .section7 img, .section8 img, .container img');
+    
+    sections.forEach((img, index) => {
+        img.addEventListener('click', function() {
+            // Determine category based on section
+            let category = 'all';
+            const parentSection = img.closest('[class*="section"]') || img.closest('.container');
+            
+            if (parentSection.classList.contains('section2') || parentSection.classList.contains('section4')) {
+                category = 'men';
+            } else if (parentSection.classList.contains('section6') || parentSection.classList.contains('section8')) {
+                category = 'women';
+            } else if (index % 3 === 0) {
+                category = 'kids';
+            }
+            
+            // Navigate to products
+            navigateToProducts(category);
+        });
+        
+        // Add hover effect
+        img.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+        img.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+        });
+        
+        img.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
+    });
+});
+
+function navigateToProducts(category = 'all') {
+    // Hide all homepage sections
+    hideAllSections();
+    
+    // Filter products based on category
+    let filteredProducts = sampleProducts;
+    if (category !== 'all') {
+        filteredProducts = sampleProducts.filter(product => product.category === category);
+    }
+    
+    // Show products section
+    const productsSection = document.getElementById('productsSection');
+    if (productsSection) {
+        productsSection.style.display = 'block';
+        displayProducts(filteredProducts, 'mainProductsGrid');
+    } else {
+        // Create and show search results if products section doesn't exist
+        document.getElementById('searchQuery').textContent = category.charAt(0).toUpperCase() + category.slice(1);
+        document.getElementById('resultsCount').textContent = filteredProducts.length;
+        displayProducts(filteredProducts, 'productsGrid');
+        searchResults.style.display = 'block';
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    showNotification(`Showing ${category === 'all' ? 'all' : category} products`);
+}
+
 // Theme Toggle
 themeToggle.addEventListener('click', () => {
     currentTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -633,6 +872,28 @@ themeToggle.addEventListener('click', () => {
 
 // Load saved theme
 document.addEventListener('DOMContentLoaded', () => {
+    // Handle loading notification
+    const loadingNotification = document.getElementById('loadingNotification');
+    const closeNotification = document.getElementById('closeNotification');
+    
+    // Remove auto-hide - notification stays permanently
+    // User can only close it manually
+    
+    // Allow manual close
+    if (closeNotification) {
+        closeNotification.addEventListener('click', hideNotification);
+    }
+    
+    function hideNotification() {
+        if (loadingNotification) {
+            loadingNotification.classList.add('fade-out');
+            setTimeout(() => {
+                loadingNotification.style.display = 'none';
+            }, 500);
+        }
+    }
+    
+    // Theme loading
     const savedTheme = localStorage.getItem('theme') || 'light';
     currentTheme = savedTheme;
     document.documentElement.setAttribute('data-theme', currentTheme);
